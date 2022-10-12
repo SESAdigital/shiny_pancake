@@ -6,10 +6,12 @@ namespace App\Repositories;
 
 use App\Http\Resources\UserResource;
 use App\Interface\UserInterface;
+use App\Mail\OTPMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserRepo implements UserInterface
@@ -187,13 +189,19 @@ class UserRepo implements UserInterface
         // Log::info("otp = ".$otp);
         // dd($otp);
 
-        $user = DB::table('users')->where('email', $req->input('email'))->update(['otp' => $otp]);
+        $user = User::where('email', $req->input('email'))->update(['otp' => $otp]);
 
+
+        $otpmail = [
+            'OTP' => $otp,
+        ];
         // $user = User::where('phone', $request->phone)->first();
         // dd($otp);
         // User::where('username','John') -> first();
         // send otp to mobile no using sms api
-        return response()->json([$otp], 200);
+        Mail::to($user->email)->send(new OTPMail($otpmail));
+
+        // return response()->json([$otp], 200);
     }
 
    

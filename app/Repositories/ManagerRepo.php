@@ -6,9 +6,11 @@ namespace App\Repositories;
 
 use App\Http\Resources\ManagerResource;
 use App\Interface\ManagerInterface;
+use App\Mail\SESAMAIL;
 use App\Models\Manager;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class ManagerRepo implements ManagerInterface
 {
@@ -75,8 +77,20 @@ class ManagerRepo implements ManagerInterface
           $data->password = Hash::make($request->password);
   
           // dd($data);
-          $data->save();
+        //   $data->save();
+
+          $mailData = [
+
+            'title' => 'HELLO '. $data->f_name,
+    
+            'body' => 'You have been onboarded As A manager on sesa App'
+    
+        ];
   
+          Mail::to($data->email)->send(new SESAMAIL($mailData));
+
+          
+        //   ::to('your_receiver_email@gmail.com')->send(new \App\Mail\MyTestMail($details));
   
           return new ManagerResource($data);
           
